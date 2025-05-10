@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hey Stranger!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: black;
+      color: white;
+      overflow: hidden;
+    }
+    .background {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('https://www.transparenttextures.com/patterns/black-felt.png');
+      animation: shine 5s infinite linear;
+    }
+    @keyframes shine {
+      0% {background-position: 0 0;}
+      100% {background-position: 100% 100%;}
+    }
+    .emoji-bg {
+      position: absolute;
+      font-size: 2rem;
+      color: #ff8800;
+      opacity: 0.1;
+      animation: float 20s infinite linear;
+    }
+    @keyframes float {
+      0% {transform: translateY(0);}
+      100% {transform: translateY(-100vh);}
+    }
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+    .fox {
+      width: 100px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .login-box {
+      margin-top: 20px;
+      background: #111;
+      border: 2px solid #ff5500;
+      padding: 20px;
+      border-radius: 10px;
+      position: relative;
+      text-align: center;
+    }
+    .nickname-input {
+      background: #000;
+      color: white;
+      border: 2px solid #ff8800;
+      padding: 10px;
+      font-family: 'Press Start 2P', monospace;
+      width: 300px;
+      position: relative;
+    }
+    .nickname-input::before,
+    .nickname-input::after {
+      content: '\1F431';
+      position: absolute;
+      color: #444;
+      font-size: 1.2rem;
+    }
+    .nickname-input::before {
+      left: -20px;
+    }
+    .nickname-input::after {
+      right: -20px;
+    }
+    .submit-btn {
+      margin-top: 10px;
+      background: #ff4400;
+      color: white;
+      padding: 10px 20px;
+      font-family: 'Press Start 2P', monospace;
+      border: none;
+      cursor: pointer;
+    }
+    .error-msg {
+      color: red;
+      margin-top: 10px;
+    }
+    .creepy-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(ellipse at center, #111 0%, #000 100%);
+      color: #ff5500;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      z-index: 10;
+      padding: 40px;
+    }
+    .option-btn {
+      margin-top: 20px;
+      background: #222;
+      border: 2px solid #ff5500;
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .game-description {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: black;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 11;
+      animation: fadeIn 2s ease-in-out;
+    }
+    #typewriter {
+      white-space: pre-wrap;
+    }
+    #typewriter::after {
+      content: '|';
+      animation: blink 1s step-start infinite;
+      margin-left: 2px;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  <div class="emoji-bg" style="top: 10%; left: 20%;">🦊</div>
+  <div class="emoji-bg" style="top: 50%; left: 70%;">🦊</div>
+  <div class="emoji-bg" style="top: 80%; left: 30%;">🦊</div>
+
+  <div class="container" id="login-screen">
+    <img class="fox" src="https://media.tenor.com/jN3sR_3NEjQAAAAi/fox.gif" alt="fox" />
+    <div class="login-box">
+      <label for="nickname">ENTER YOUR NICKNAME:</label><br />
+      <input type="text" id="nickname" class="nickname-input" /><br />
+      <button class="submit-btn" onclick="checkName()">ENTER</button>
+      <div class="error-msg" id="error"></div>
+    </div>
+  </div>
+
+  <div class="creepy-screen" id="creepy-screen">
+    <p>Do you want to play this riddle game? 😼</p>
+    <button class="option-btn" onclick="startGame()">Sure</button>
+    <button class="option-btn" onclick="denyGame()">No Thanks</button>
+  </div>
+
+  <div class="game-description" id="game-description">
+    <h1>🕵️‍♂️ FOXY-RIDDLE 🦊</h1>
+    <p id="typewriter"></p>
+    <button class="option-btn" onclick="goToGame()">Start Game</button>
+  </div>
+
+  <audio id="type-sound" src="https://assets.mixkit.co/active_storage/sfx/1853/1853-preview.mp3" preload="auto"></audio>
+
+  <script>
+    const allowedNickname = 'SALAR';
+
+    function checkName() {
+      const nickname = document.getElementById('nickname').value.trim().toUpperCase();
+      const errorBox = document.getElementById('error');
+      if (nickname === allowedNickname) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('creepy-screen').style.display = 'flex';
+      } else {
+        errorBox.innerHTML = "hehe 😎Try all the nicknames you’ve got from me 👀 Or just choose the hint option 🤥";
+      }
+    }
+
+    function startGame() {
+      document.getElementById('creepy-screen').style.display = 'none';
+      const text = "This is a mafia-style riddle challenge, just for you. There are 3 levels — all about YOUR secrets, nicknames & memories. Solve them one by one and earn your reward. 😏";
+      document.getElementById('typewriter').innerHTML = '';
+      typeWriter(text, 0);
+      document.getElementById('game-description').style.display = 'flex';
+    }
+
+    function denyGame() {
+      alert('You have to play. There is no choice 😁');
+      startGame();
+    }
+
+    function goToGame() {
+      window.location.href = 'game.html';
+    }
+
+    function typeWriter(text, i) {
+      const sound = document.getElementById("type-sound");
+      if (i < text.length) {
+        document.getElementById("typewriter").innerHTML += text.charAt(i);
+        if (![' ', '.', ',', '😏'].includes(text.charAt(i))) {
+          sound.currentTime = 0;
+          sound.play();
+        }
+        setTimeout(function() {
+          typeWriter(text, i + 1);
+        }, 40);
+      }
+    }
+  </script>
+</body>
+</html>
